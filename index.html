@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snack Store - 零食購物中心</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+        body { background-color: #0b111e; color: white; min-height: 100vh; display: flex; justify-content: center; align-items: center; }
+        
+        /* 🔒 登入畫面 */
+        .login-page { display: flex; justify-content: center; align-items: center; width: 100%; height: 100vh; }
+        .login-container { background-color: #ffffff; padding: 40px 30px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3); width: 100%; max-width: 400px; text-align: center; }
+        .logo-title { font-size: 24px; font-weight: bold; color: #1a1a1a; margin-bottom: 30px; }
+        .form-group { text-align: left; margin-bottom: 20px; }
+        .form-group label { display: block; font-size: 14px; font-weight: 600; color: #333333; margin-bottom: 8px; }
+        .form-group input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; outline: none; color: #000; }
+        .login-btn { width: 100%; padding: 12px; background-color: #007bff; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .register-link { margin-top: 20px; font-size: 14px; color: #666; }
+
+        /* 🏪 商店畫面（預設隱藏） */
+        .shop-page { display: none; width: 100%; padding: 20px; min-height: 100vh; flex-direction: column; }
+        header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 20px; border-bottom: 1px solid #223047; margin-bottom: 30px; width: 100%; }
+        h1 { color: #007bff; font-size: 28px; }
+        .cart-status { background: #1e293b; padding: 10px 20px; border-radius: 20px; font-size: 14px; cursor: pointer; border: 1px solid #334155; }
+        .cart-status:hover { background: #007bff; }
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 25px; width: 100%; }
+        .product-card { background: #162235; border-radius: 12px; padding: 15px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        .product-image { font-size: 60px; margin-bottom: 15px; background: #1e293b; padding: 20px; border-radius: 8px; }
+        .product-title { font-size: 18px; font-weight: bold; margin-bottom: 8px; }
+        .product-price { color: #38bdf8; font-size: 16px; font-weight: bold; margin-bottom: 15px; }
+        .buy-btn { background: #007bff; color: white; border: none; padding: 10px 20px; width: 100%; border-radius: 6px; font-weight: bold; cursor: pointer; }
+
+        /* 🛒 購物車彈出明細 */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: #162235; padding: 30px; border-radius: 12px; width: 90%; max-width: 420px; text-align: center; border: 1px solid #223047; }
+        .cart-list { text-align: left; margin-bottom: 20px; max-height: 240px; overflow-y: auto; background: #0b111e; padding: 15px; border-radius: 8px; }
+        .cart-item { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 15px; padding-bottom: 8px; border-bottom: 1px solid #1e293b; }
+        .modal-footer { display: flex; justify-content: space-between; gap: 15px; margin-top: 20px; }
+        .close-modal-btn { background: #475569; color: white; border: none; padding: 12px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; flex: 1; }
+        .checkout-btn { background: #10b981; color: white; border: none; padding: 12px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; flex: 1; }
+    </style>
+</head>
+<body>
+
+    <!-- 🔒 登入區塊 -->
+    <div class="login-page" id="loginBlock">
+        <div class="login-container">
+            <div class="logo-title">🏪 Login to Snack Store</div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="email" placeholder="Enter your email" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="password" placeholder="Enter your password" required>
+                </div>
+                <button type="submit" class="login-btn">Login</button>
+            </form>
+            <div class="register-link">Don't have an account? <a href="#" style="color:#007bff; text-decoration:none;">Register here</a></div>
+        </div>
+    </div>
+
+    <!-- 🏪 商店區塊 -->
+    <div class="shop-page" id="shopBlock">
+        <header>
+            <h1>🏪 Snack Store 零食小舖</h1>
+            <div class="cart-status" onclick="openCart()">🛒 點擊看購物車明細 (<span id="cart-count">0</span>)</div>
+        </header>
+        <div class="products-grid">
+            <div class="product-card">
+                <div class="product-image">🥔</div>
+                <div class="product-title">美味經典洋芋片</div>
+                <div class="product-price">$ 45 TWD</div>
+                <button class="buy-btn" onclick="addToCart('美味經典洋芋片', 45)">加入購物車</button>
+            </div>
+            <div class="product-card">
+                <div class="product-image">🍫</div>
+                <div class="product-title">濃郁黑巧克力棒</div>
+                <div class="product-price">$ 60 TWD</div>
+                <button class="buy-btn" onclick="addToCart('濃郁黑巧克力棒', 60)">加入購物車</button>
+            </div>
+            <div class="product-card">
+                <div class="product-image">🍿</div>
+                <div class="product-title">焦糖爆米花桶</div>
+                <div class="product-price">$ 85 TWD</div>
+                <button class="buy-btn" onclick="addToCart('焦糖爆米花桶', 85)">加入購物車</button>
+            </div>
+            <div class="product-card">
+                <div class="product-image">🧃</div>
+                <div class="product-title">哈密瓜蘇打汽水</div>
+                <div class="product-price">$ 35 TWD</div>
+                <button class="buy-btn" onclick="addToCart('哈密瓜蘇打汽水', 35)">加入購物車</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🛒 明細視窗 -->
+    <div class="modal-overlay" id="cartModal">
+        <div class="modal-content">
+            <div class="modal-title" style="color:#38bdf8; font-size:22px; font-weight:bold; margin-bottom:20px;">🛒 您的訂單購物清單</div>
+            <div class="cart-list" id="cart-list-content"></div>
+            <div style="font-size: 18px; font-weight: bold; text-align: right; margin-bottom: 20px;">總計金額: <span id="total-price" style="color: #34d399;">$ 0</span> TWD</div>
+            <div class="modal-footer">
+                <button class="close-modal-btn" onclick="closeCart()">返回選購</button>
+                <button class="checkout-btn" onclick="checkout()">確認送出訂單</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 登入檢查（不需透過伺服器，讓靜態網頁直接具備檢查能力）
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            if (email === "admin@snack.com" && password === "123456") {
+                alert("🎉 登入成功！歡迎光臨！");
+                document.getElementById('loginBlock').style.display = 'none';
+                document.getElementById('shopBlock').style.display = 'flex';
+                document.body.style.alignItems = 'flex-start';
+            } else {
+                alert("❌ 帳號或密碼錯誤，請重新輸入！");
+            }
+        });
+
+        // 購物車邏輯
+        let cart = {}; let totalCount = 0;
+        function addToCart(name, price) {
+            totalCount++; document.getElementById('cart-count').innerText = totalCount;
+            if (cart[name]) { cart[name].count++; } else { cart[name] = { price: price, count: 1 }; }
+        }
+        function openCart() {
+            const listContent = document.getElementById('cart-list-content');
+            listContent.innerHTML = ''; let totalPrice = 0;
+            if (Object.keys(cart).length === 0) {
+                listContent.innerHTML = '<div style="text-align:center; color:#94a3b8; padding:20px;">購物車空空的。</div>';
+            } else {
+                for (let item in cart) {
+                    let cost = cart[item].price * cart[item].count; totalPrice += cost;
+                    listContent.innerHTML += `<div class="cart-item" style="display:flex; justify-content:space-between; margin-bottom:10px;"><span>${item} x ${cart[item].count}</span><span>$${cost}</span></div>`;
+                }
+            }
+            document.getElementById('total-price').innerText = totalPrice;
+            document.getElementById('cartModal').style.display = 'flex';
+        }
+        function closeCart() { document.getElementById('cartModal').style.display = 'none'; }
+        function checkout() {
+            if (totalCount === 0) { alert("購物車內無商品！"); return; }
+            alert("🎉 訂單已成功送出！感謝您的購買！");
+            cart = {}; totalCount = 0; document.getElementById('cart-count').innerText = 0; closeCart();
+        }
+    </script>
+</body>
+</html>
