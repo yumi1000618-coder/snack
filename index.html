@@ -1,89 +1,164 @@
-ㄨ<!DOCTYPE html>
-<html>
+<!DOCTYPE html>
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LTBrown Community Store</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+        body { background-color: #0b111e; color: white; min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
+        
+        /* 🔒 1. 登入/註冊畫面 */
+        .login-page { display: flex; justify-content: center; align-items: center; width: 100%; height: 100vh; }
+        .login-container { background-color: #ffffff; padding: 40px 30px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3); width: 100%; max-width: 400px; text-align: center; color: black; }
+        .tab-btns { display: flex; gap: 10px; margin-bottom: 25px; }
+        .tab-btns button { flex: 1; padding: 10px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .form-group { text-align: left; margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; color: #333; }
+        .form-group input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; outline: none; color: black; }
+        .submit-btn { width: 100%; padding: 12px; background: #007bff; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        .admin-btn { width: 100%; padding: 12px; background-color: #6366f1; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 12px; }
+
+        /* 通用頁面控制（預設隱藏） */
+        .main-app-page { display: none; width: 100%; max-width: 1200px; min-height: 100vh; flex-direction: column; }
+        header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 20px; border-bottom: 1px solid #223047; margin-bottom: 30px; width: 100%; }
+        .logout-btn { background: #ef4444; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+
+        /* 🏪 2. 顧客商店畫面與購物車 */
+        .main-container { display: grid; grid-template-columns: 2fr 1fr; gap: 30px; width: 100%; }
+        .section-box { background: #162235; border-radius: 12px; padding: 20px; border: 1px solid #223047; }
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+        .product-card { background: #1e293b; border-radius: 12px; padding: 15px; text-align: center; position: relative; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        .product-image { font-size: 50px; margin-bottom: 15px; background: #1e293b; padding: 15px; border-radius: 8px; }
+        .product-title { font-size: 16px; font-weight: bold; margin-bottom: 8px; }
+        .product-price { color: #38bdf8; font-size: 16px; font-weight: bold; margin-bottom: 15px; }
+        .buy-btn { background: #007bff; color: white; border: none; padding: 8px 16px; width: 100%; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        .stock-tag { position: absolute; top: 10px; right: 10px; background: #0f172a; padding: 2px 8px; border-radius: 10px; font-size: 12px; color: #94a3b8; }
+        .cart-item { display: flex; justify-content: space-between; margin-bottom: 10px; background: #0b111e; padding: 10px; border-radius: 6px; align-items: center; }
+
+        /* ⚙️ 3. 管理員後端管理系統 */
+        .admin-dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; width: 100%; }
+        .admin-section { background: #162235; border-radius: 12px; padding: 25px; border: 1px solid #223047; }
+        .admin-section h2 { font-size: 20px; color: #38bdf8; margin-bottom: 20px; border-bottom: 1px solid #223047; padding-bottom: 10px; }
+        .admin-form-group { margin-bottom: 15px; text-align: left; }
+        .admin-form-group label { display: block; font-size: 14px; margin-bottom: 5px; color: #94a3b8; }
+        .admin-form-group input { width: 100%; padding: 10px; background: #0b111e; border: 1px solid #223047; border-radius: 6px; color: white; outline: none; }
+        .admin-submit-btn { background: #10b981; color: white; border: none; padding: 12px; width: 100%; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .admin-product-item { display: flex; justify-content: space-between; align-items: center; background: #0b111e; padding: 12px; border-radius: 6px; margin-bottom: 10px; }
+    </style>
 </head>
 <body>
-        <div style="background: white; color: black; max-width: 400px; margin: 50px auto; padding: 30px; border-radius: 12px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
-        <h2>🏪 LTBrown Community Store</h2>
-        
-        <!-- 切換標籤按鈕 -->
-        <div style="margin-bottom: 20px;">
-            <button id="showSignIn" style="background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Sign In</button>
-            <button id="showSignUp" style="background: #6c757d; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; margin-left: 10px;">Sign Up</button>
+
+    <!-- 🔒 1. 登入/註冊主介面 -->
+    <div class="login-page" id="loginBlock">
+        <div class="login-container">
+            <h2 style="margin-bottom: 20px;">🏪 LTBrown Store</h2>
+            <div class="tab-btns">
+                <button id="tabSignin" style="background:#007bff; color:white;" onclick="switchTab('signin')">Sign In</button>
+                <button id="tabSignup" style="background:#e2e8f0; color:#334155;" onclick="switchTab('signup')">Sign Up</button>
+            </div>
+
+            <!-- Sign In Form -->
+            <form id="signinForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="loginUser" required placeholder="管理員打 admin / 顧客請先註冊">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPass" required placeholder="管理員密碼打 admin123">
+                </div>
+                <button type="submit" class="submit-btn">Sign In</button>
+            </form>
+
+            <!-- Sign Up Form -->
+            <form id="signupForm" onsubmit="handleSignup(event)" style="display: none;">
+                <div class="form-group">
+                    <label>Create Username</label>
+                    <input type="text" id="regUser" required placeholder="請輸入全新帳號">
+                </div>
+                <div class="form-group">
+                    <label>Create Password</label>
+                    <input type="password" id="regPass" required placeholder="請輸入密碼">
+                </div>
+                <button type="submit" class="submit-btn" style="background:#10b981;">Sign Up (確認註冊)</button>
+            </form>
+
+            <!-- 紫色管理員快速按鈕 -->
+            <button class="admin-btn" onclick="enterAsAdminQuick()">🟪 Admin Login (管理員一鍵登入)</button>
         </div>
-
-        <!-- 🔒 Sign In 登入表單 -->
-        <form id="signInForm">
-            <div style="margin-bottom: 15px; text-align: left;">
-                <label style="display:block; margin-bottom:5px; font-weight:bold;">Username</label>
-                <input type="text" id="loginUser" placeholder="Enter username" required style="width:100%; padding:10px; border:1px solid #ccc; border-radius:6px;">
-            </div>
-            <div style="margin-bottom: 20px; text-align: left;">
-                <label style="display:block; margin-bottom:5px; font-weight:bold;">Password</label>
-                <input type="password" id="loginPass" placeholder="Enter password" required style="width:100%; padding:10px; border:1px solid #ccc; border-radius:6px;">
-            </div>
-            <button type="submit" style="width:100%; padding:12px; background:#007bff; color:white; border:none; border-radius:6px; font-weight:bold; cursor:pointer;">Sign In</button>
-        </form>
-
-        <!-- 📝 Sign Up 註冊表單（預設先隱藏） -->
-        <form id="signUpForm" style="display: none;">
-            <div style="margin-bottom: 15px; text-align: left;">
-                <label style="display:block; margin-bottom:5px; font-weight:bold;">Create Username</label>
-                <input type="text" id="regUser" placeholder="Create username" required style="width:100%; padding:10px; border:1px solid #ccc; border-radius:6px;">
-            </div>
-            <div style="margin-bottom: 20px; text-align: left;">
-                <label style="display:block; margin-bottom:5px; font-weight:bold;">Create Password</label>
-                <input type="password" id="regPass" placeholder="Create password" required style="width:100%; padding:10px; border:1px solid #ccc; border-radius:6px;">
-            </div>
-            <button type="submit" style="width:100%; padding:12px; background:#28a745; color:white; border:none; border-radius:6px; font-weight:bold; cursor:pointer;">Sign Up (確認註冊)</button>
-        </form>
     </div>
 
+    <!-- 🏪 2. 顧客商店畫面 -->
+    <div class="main-app-page" id="shopBlock">
+        <header>
+            <h1 id="welcomeTitle">🏪 LTBrown Community Store</h1>
+            <button class="logout-btn" onclick="logout()">安全登出 Log Out</button>
+        </header>
+        <div class="main-container">
+            <div class="section-box">
+                <h2 style="margin-bottom: 20px; color: #38bdf8;">🛒 Select Products (選購零食)</h2>
+                <div class="products-grid" id="productsGrid"></div>
+            </div>
+            <div>
+                <div class="section-box">
+                    <h2 style="margin-bottom: 20px; color:#10b981;">🛒 My Cart (我的明細)</h2>
+                    <div id="cartList"></div>
+                    <div style="text-align: right; margin: 15px 0; font-size: 18px; font-weight: bold;">總計: $<span id="cartTotal">0</span> TWD</div>
+                    <button onclick="handleCheckout()" class="buy-btn" style="background:#10b981; padding:12px;">確認付款送出訂單</button>
+                </div>
+                <div class="section-box" style="margin-top: 20px;">
+                    <h2 style="margin-bottom: 20px; color:#eab308;">🗒️ Order History (歷史訂單)</h2>
+                    <div id="orderHistoryList" style="max-height: 200px; overflow-y:auto; font-size:13px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <!-- 這裡等一下要來做老師要的 Sign In / Sign Up 按鈕 -->
+    <!-- ⚙️ 3. 管理員後端管理控制中心 -->
+    <div class="main-app-page" id="adminBlock">
+        <header>
+            <h1>⚙️ Admin Control Panel (管理員後端中心)</h1>
+            <button class="logout-btn" onclick="logout()">安全登出 Log Out</button>
+        </header>
+        <div class="admin-dashboard">
+            <div class="admin-section">
+                <h2>➕ Add New Product (上架新零食)</h2>
+                <div class="admin-form-group">
+                    <label>零食名稱</label>
+                    <input type="text" id="new-p-name" placeholder="例如：草莓大福">
+                </div>
+                <div class="admin-form-group">
+                    <label>零食圖示 (Emoji)</label>
+                    <input type="text" id="new-p-icon" placeholder="例如：🍓 或 🍦">
+                </div>
+                <div class="admin-form-group">
+                    <label>販售價格 (TWD)</label>
+                    <input type="number" id="new-p-price" placeholder="50">
+                </div>
+                <div class="admin-form-group">
+                    <label>初始庫存量</label>
+                    <input type="number" id="new-p-stock" placeholder="30">
+                </div>
+                <button class="admin-submit-btn" onclick="addNewProductByAdmin()">確認上架新商品</button>
+            </div>
+            <div class="admin-section">
+                <h2>📝 Product List & Inventory (庫存管理)</h2>
+                <div id="admin-products-list-content"></div>
+            </div>
+        </div>
+    </div>
 
-</body>
     <script>
-        const btnSignIn = document.getElementById('showSignIn');
-        const btnSignUp = document.getElementById('showSignUp');
-        const formSignIn = document.getElementById('signInForm');
-        const formSignUp = document.getElementById('signUpForm');
-
-        // 點擊 Sign In 按鈕時切換
-        btnSignIn.addEventListener('click', () => {
-            formSignIn.style.display = 'block';
-            formSignUp.style.display = 'none';
-            btnSignIn.style.background = '#007bff';
-            btnSignUp.style.background = '#6c757d';
-        });
-
-        // 點擊 Sign Up 按鈕時切換
-        btnSignUp.addEventListener('click', () => {
-            formSignIn.style.display = 'none';
-            formSignUp.style.display = 'block';
-            btnSignIn.style.background = '#6c757d';
-            btnSignUp.style.background = '#28a745';
-        });
-
-        // 處理登入成功直接跳轉到商品頁
-        formSignIn.addEventListener('submit', (e) => {
-            e.preventDefault();
-            alert("🎉 登入成功！即將進入 LTBrown 商店選購！");
-            window.location.href = "shop.html"; // 直接連動到您的商品頁
-        });
-
-        // 處理註冊成功
-        formSignUp.addEventListener('submit', (e) => {
-            e.preventDefault();
-            alert("✅ 帳號註冊成功！請切換回 Sign In 登入。");
-            formSignIn.style.display = 'block';
-            formSignUp.style.display = 'none';
-            btnSignIn.style.background = '#007bff';
-            btnSignUp.style.background = '#6c757d';
-        });
-    </script>
-
-</html>
-
+        // 利用瀏覽器本地記憶體庫（LocalStorage）充當真實的資料庫！
+        if (!localStorage.getItem('productsDatabase')) {
+            let defaultProducts = [
+                { id: 1, name: "美味經典洋芋片", icon: "🥔", price: 45, stock: 50 },
+                { id: 2, name: "濃郁黑巧克力棒", icon: "🍫", price: 60, stock: 30 },
+                { id: 3, name: "焦糖爆米花桶", icon: "🍿", price: 85, stock: 20 },
+                { id: 4, name: "哈密瓜蘇打汽水", icon: "🧃", price: 35, stock: 100 }
+            ];
+            localStorage.setItem('productsDatabase', JSON.stringify(defaultProducts));
+        }
+        if (!localStorage.getItem('usersDatabase')) {
+            let defaultUsers = { "admin": "admin123" };
